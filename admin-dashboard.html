@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - NexaAI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f7fa;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .admin-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      padding: 8px 20px;
+      background: #f5f7fa;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .logout-btn:hover {
+      background: #e0e4ea;
+    }
+
+    /* Dashboard Content */
+    .container {
+      max-width: 1400px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .header-section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-section h1 {
+      font-size: 32px;
+    }
+
+    .add-user-btn {
+      padding: 12px 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .add-user-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Users Table */
+    .users-section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .users-section h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f8f9fa;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #666;
+      font-size: 14px;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-inactive {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .action-btn {
+      padding: 6px 15px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 5px;
+    }
+
+    .action-btn:hover {
+      background: #5568d3;
+    }
+
+    .delete-btn {
+      background: #dc3545;
+    }
+
+    .delete-btn:hover {
+      background: #c82333;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .save-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .cancel-btn {
+      flex: 1;
+      padding: 12px;
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="logo">🔷 NexaAI Admin</div>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <span class="admin-badge">ADMIN</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="header-section">
+      <div>
+        <h1>User Management</h1>
+        <p style="color: #666; margin-top: 5px;">Manage Yapper Toolkit users</p>
+      </div>
+      <button class="add-user-btn" onclick="openAddUserModal()">+ Add New User</button>
+    </div>
+
+    <!-- Users Table -->
+    <div class="users-section">
+      <h2>All Users (5)</h2>
+      
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>X Account</th>
+            <th>Status</th>
+            <th>Projects</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          <!-- Sample data -->
+          <tr>
+            <td>
+              <div class="user-info">
+                <img src="https://via.placeholder.com/40" alt="User" class="user-avatar">
+                <span>John Doe</span>
+              </div>
+            </td>
+            <td>john@example.com</td>
+            <td>@johndoe</td>
+            <td><span class="status-badge status-active">Active</span></td>
+            <td>3 projects</td>
+            <td>
+              <button class="action-btn" onclick="editUser('1')">Edit</button>
+              <button class="action-btn delete-btn" onclick="deleteUser('1')">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Add/Edit User Modal -->
+  <div class="modal" id="userModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add New User</h2>
+      
+      <form id="userForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="userEmail" placeholder="user@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="userName" placeholder="John Doe">
+        </div>
+
+        <div class="form-group">
+          <label>X Handle (Twitter)</label>
+          <input type="text" id="xHandle" placeholder="@username">
+        </div>
+
+        <div class="form-group">
+          <label>X Profile Photo URL</label>
+          <input type="url" id="xAvatar" placeholder="https://...">
+        </div>
+
+        <div class="form-group">
+          <label>Daily Projects (comma-separated)</label>
+          <input type="text" id="projects" placeholder="@project1, @project2, @project3">
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="save-btn">Save User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script type="module">
+  import { auth, db, doc, getDoc, collection, getDocs, setDoc, updateDoc, deleteDoc, createUserWithEmailAndPassword } from './firebase-config.js';
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  // === CRITICAL: Check authentication FIRST ===
+  let currentUserId = null;
+  let isAdmin = false;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // Not logged in - redirect immediately
+      alert('Please login first');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    currentUserId = user.uid;
+
+    // Check if user is admin
+    try {
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      
+      if (!userDoc.exists()) {
+        alert('User not found in database');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const userData = userDoc.data();
+      
+      if (userData.role !== 'admin') {
+        alert('Admin access required');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      isAdmin = true;
+      
+      // Now safe to load users
+      loadUsers();
+      
+    } catch (error) {
+      console.error('Error checking admin:', error);
+      alert('Error verifying admin access');
+      window.location.href = '/login.html';
+    }
+  });
+
+  // Load all users
+  async function loadUsers() {
+    if (!isAdmin) {
+      alert('Unauthorized access');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    try {
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = '';
+
+      let userCount = 0;
+
+      usersSnapshot.forEach((doc) => {
+        const user = doc.data();
+        const userId = doc.id;
+
+        if (user.role === 'admin') return; // Don't show admin users
+
+        userCount++;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div class="user-info">
+              <img src="${user.xAvatar || 'https://via.placeholder.com/40'}" alt="User" class="user-avatar">
+              <span>${user.name || 'N/A'}</span>
+            </div>
+          </td>
+          <td>${user.email}</td>
+          <td>${user.xHandle || 'Not linked'}</td>
+          <td><span class="status-badge ${user.status === 'active' ? 'status-active' : 'status-inactive'}">${user.status || 'active'}</span></td>
+          <td>${user.projects?.length || 0} projects</td>
+          <td>
+            <button class="action-btn" onclick="window.editUser('${userId}')">Edit</button>
+            <button class="action-btn delete-btn" onclick="window.deleteUser('${userId}')">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Update count
+      document.querySelector('.users-section h2').textContent = `All Users (${userCount})`;
+
+    } catch (error) {
+      console.error('Error loading users:', error);
+      alert('Error loading users');
+    }
+  }
+
+  // Modal functions
+  function openAddUserModal() {
+    if (!isAdmin) {
+      alert('Unauthorized');
+      return;
+    }
+    editingUserId = null;
+    document.getElementById('modalTitle').textContent = 'Add New User';
+    document.getElementById('userForm').reset();
+    document.getElementById('userEmail').disabled = false;
+    document.getElementById('userModal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('userModal').style.display = 'none';
+    editingUserId = null;
+  }
+
+  let editingUserId = null;
+
+  // Form submission
+  document.getElementById('userForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!isAdmin) {
+      alert('Unauthorized');
+      return;
+    }
+
+    const email = document.getElementById('userEmail').value.trim();
+    const name = document.getElementById('userName').value.trim();
+    const xHandle = document.getElementById('xHandle').value.trim();
+    const xAvatar = document.getElementById('xAvatar').value.trim();
+    const projectsInput = document.getElementById('projects').value.trim();
+    const projects = projectsInput ? projectsInput.split(',').map(p => p.trim()) : [];
+
+    const saveBtn = document.querySelector('.save-btn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    try {
+      if (editingUserId) {
+        // Update existing user
+        await updateDoc(doc(db, 'users', editingUserId), {
+          name,
+          xHandle,
+          xAvatar,
+          projects,
+          updatedAt: new Date().toISOString()
+        });
+        alert('User updated successfully!');
+      } else {
+        // Create new user with Firebase Authentication
+        const tempPassword = 'TempPass123!'; // User should change this
+        
+        // Create auth user
+        const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
+        const newUserId = userCredential.user.uid;
+
+        // Create user document in Firestore
+        await setDoc(doc(db, 'users', newUserId), {
+          email,
+          name,
+          xHandle,
+          xAvatar,
+          projects,
+          role: 'user',
+          status: 'active',
+          createdAt: new Date().toISOString()
+        });
+
+        alert(`User added successfully!\n\nTemporary password: ${tempPassword}\n\nAsk user to login and change password.`);
+      }
+
+      closeModal();
+      loadUsers();
+
+    } catch (error) {
+      console.error('Error saving user:', error);
+      
+      let errorMsg = 'Error: ';
+      if (error.code === 'auth/email-already-in-use') {
+        errorMsg += 'This email is already registered.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMsg += 'Password is too weak.';
+      } else {
+        errorMsg += error.message;
+      }
+      
+      alert(errorMsg);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save User';
+    }
+  });
+
+  // Edit user
+  async function editUser(uid) {
+    if (!isAdmin) {
+      alert('Unauthorized');
+      return;
+    }
+
+    try {
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (!userDoc.exists()) {
+        alert('User not found');
+        return;
+      }
+
+      const user = userDoc.data();
+      editingUserId = uid;
+
+      document.getElementById('modalTitle').textContent = 'Edit User';
+      document.getElementById('userEmail').value = user.email;
+      document.getElementById('userEmail').disabled = true; // Can't change email
+      document.getElementById('userName').value = user.name || '';
+      document.getElementById('xHandle').value = user.xHandle || '';
+      document.getElementById('xAvatar').value = user.xAvatar || '';
+      document.getElementById('projects').value = user.projects?.join(', ') || '';
+
+      document.getElementById('userModal').style.display = 'flex';
+    } catch (error) {
+      console.error('Error loading user:', error);
+      alert('Error loading user');
+    }
+  }
+
+  // Delete user
+  async function deleteUser(uid) {
+    if (!isAdmin) {
+      alert('Unauthorized');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to delete this user?\n\nThis will:\n- Delete their account\n- Remove all their data\n- Cannot be undone')) {
+      return;
+    }
+
+    try {
+      // Delete from Firestore
+      await deleteDoc(doc(db, 'users', uid));
+      
+      // Note: Deleting from Firebase Auth requires admin SDK on backend
+      // For now we just delete from Firestore
+      alert('User deleted from database successfully.\n\nNote: Their login will still work until you disable it in Firebase Console → Authentication.');
+      
+      loadUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Error deleting user: ' + error.message);
+    }
+  }
+
+  function logout() {
+    auth.signOut().then(() => {
+      localStorage.clear();
+      window.location.href = '/login.html';
+    });
+  }
+
+  // Make functions global
+  window.openAddUserModal = openAddUserModal;
+  window.closeModal = closeModal;
+  window.editUser = editUser;
+  window.deleteUser = deleteUser;
+  window.logout = logout;
+</script>
+
+
+
+</body>
+</html>

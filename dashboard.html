@@ -1,0 +1,79 @@
+<script type="module">
+  import { auth, db, doc, getDoc } from './firebase-config.js';
+
+  // Check authentication
+  const userId = localStorage.getItem('userId');
+  const userEmail = localStorage.getItem('userEmail');
+
+  if (!userId || !userEmail) {
+    window.location.href = '/login.html';
+  }
+
+  // Load user data from Firestore
+  async function loadUserData() {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      
+      if (!userDoc.exists()) {
+        alert('User data not found');
+        logout();
+        return;
+      }
+
+      const data = userDoc.data();
+
+      // Update UI
+      document.getElementById('userName').textContent = data.name || data.email;
+      document.getElementById('xHandle').textContent = data.xHandle || 'Not linked';
+      document.getElementById('projectCount').textContent = data.projects?.length || 0;
+      
+      // Update avatar
+      if (data.xAvatar) {
+        document.getElementById('userAvatar').src = data.xAvatar;
+      }
+
+      // Load projects
+      if (data.projects && data.projects.length > 0) {
+        loadProjects(data.projects);
+      }
+
+    } catch (error) {
+      console.error('Error loading data:', error);
+      alert('Error loading user data');
+    }
+  }
+
+  function loadProjects(projects) {
+    const projectsList = document.getElementById('projectsList');
+    projectsList.innerHTML = '';
+
+    if (!projects || projects.length === 0) {
+      projectsList.innerHTML = '<p style="color: #666; padding: 20px; text-align: center;">No projects assigned yet</p>';
+      return;
+    }
+
+    projects.forEach(project => {
+      const item = document.createElement('div');
+      item.className = 'project-item';
+      item.innerHTML = `
+        <div class="project-info">
+          <h4>@${project}</h4>
+          <p>Engage with this project's content today</p>
+        </div>
+        <span class="project-tag">Assigned</span>
+      `;
+      projectsList.appendChild(item);
+    });
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/login.html';
+  }
+
+  // Make logout function global
+  window.logout = logout;
+
+  // Load data on page load
+  loadUserData();
+</script>
