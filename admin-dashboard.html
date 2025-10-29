@@ -16,7 +16,6 @@
       background: #f5f7fa;
     }
 
-    /* Navbar */
     .navbar {
       background: white;
       padding: 20px 40px;
@@ -57,7 +56,6 @@
       background: #e0e4ea;
     }
 
-    /* Dashboard Content */
     .container {
       max-width: 1400px;
       margin: 40px auto;
@@ -94,7 +92,6 @@
       transform: translateY(-2px);
     }
 
-    /* Users Table */
     .users-section {
       background: white;
       padding: 30px;
@@ -182,6 +179,20 @@
       background: #c82333;
     }
 
+    .password-code {
+      background: #f0f0f0;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .password-code:hover {
+      background: #e0e0e0;
+    }
+
     /* Modal */
     .modal {
       display: none;
@@ -200,8 +211,10 @@
       background: white;
       padding: 40px;
       border-radius: 15px;
-      max-width: 500px;
+      max-width: 600px;
       width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
     }
 
     .modal-content h2 {
@@ -219,7 +232,7 @@
       color: #333;
     }
 
-    .form-group input {
+    .form-group input, .form-group textarea {
       width: 100%;
       padding: 12px;
       border: 2px solid #e0e0e0;
@@ -227,7 +240,7 @@
       font-size: 14px;
     }
 
-    .form-group input:focus {
+    .form-group input:focus, .form-group textarea:focus {
       outline: none;
       border-color: #667eea;
     }
@@ -259,11 +272,19 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    .post-input {
+      margin-bottom: 15px;
+    }
+
+    .post-input textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Navbar -->
   <div class="navbar">
     <div class="logo">🔷 NexaAI Admin</div>
     <div style="display: flex; align-items: center; gap: 15px;">
@@ -272,10 +293,8 @@
     </div>
   </div>
 
-  <!-- Dashboard Content -->
   <div class="container">
     
-    <!-- Header -->
     <div class="header-section">
       <div>
         <h1>User Management</h1>
@@ -284,15 +303,15 @@
       <button class="add-user-btn" onclick="openAddUserModal()">+ Add New User</button>
     </div>
 
-    <!-- Users Table -->
     <div class="users-section">
-      <h2>All Users (5)</h2>
+      <h2>All Users</h2>
       
       <table id="usersTable">
         <thead>
           <tr>
             <th>User</th>
             <th>Email</th>
+            <th>Password</th>
             <th>X Account</th>
             <th>Status</th>
             <th>Projects</th>
@@ -300,22 +319,8 @@
           </tr>
         </thead>
         <tbody id="usersTableBody">
-          <!-- Sample data -->
           <tr>
-            <td>
-              <div class="user-info">
-                <img src="https://via.placeholder.com/40" alt="User" class="user-avatar">
-                <span>John Doe</span>
-              </div>
-            </td>
-            <td>john@example.com</td>
-            <td>@johndoe</td>
-            <td><span class="status-badge status-active">Active</span></td>
-            <td>3 projects</td>
-            <td>
-              <button class="action-btn" onclick="editUser('1')">Edit</button>
-              <button class="action-btn delete-btn" onclick="deleteUser('1')">Delete</button>
-            </td>
+            <td colspan="7" style="text-align: center; padding: 40px; color: #666;">Loading users...</td>
           </tr>
         </tbody>
       </table>
@@ -323,429 +328,87 @@
 
   </div>
 
-<!-- Add/Edit User Modal -->
-<div class="modal" id="userModal">
-  <div class="modal-content">
-    <h2 id="modalTitle">Add New User</h2>
-    
-    <form id="userForm">
-      <!-- X Profile Fetch -->
-      <div class="form-group">
-        <label>X Profile URL or Handle</label>
-        <div style="display: flex; gap: 10px;">
-          <input 
-            type="text" 
-            id="xProfileInput" 
-            placeholder="https://x.com/elonmusk or @elonmusk"
-          >
-          <button 
-            type="button" 
-            class="fetch-btn" 
-            id="fetchProfileBtn"
-            style="padding: 12px 20px; background: #1DA1F2; color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap;"
-          >
-            🔍 Fetch Profile
-          </button>
+  <!-- User Modal -->
+  <div class="modal" id="userModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add New User</h2>
+      
+      <form id="userForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="userEmail" placeholder="user@example.com" required>
         </div>
-        <small style="color: #666; display: block; margin-top: 5px;">Enter X profile link and click Fetch to auto-fill details</small>
-      </div>
 
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="userEmail" placeholder="user@example.com" required>
-      </div>
-
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" id="userName" placeholder="John Doe">
-      </div>
-
-      <div class="form-group">
-        <label>X Handle (Twitter)</label>
-        <input type="text" id="xHandle" placeholder="@username">
-      </div>
-
-      <div class="form-group">
-        <label>X Profile Photo URL</label>
-        <input type="url" id="xAvatar" placeholder="https://...">
-        <div id="avatarPreview" style="margin-top: 10px; display: none;">
-          <img id="avatarPreviewImg" src="" alt="Preview" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="userName" placeholder="John Doe">
         </div>
-      </div>
 
-      <div class="form-group">
-        <label>Daily Projects (comma-separated)</label>
-        <input type="text" id="projects" placeholder="@project1, @project2, @project3">
-      </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="text" id="userPassword" placeholder="Auto-generated">
+          <small style="color: #666;">Leave empty for auto-generated password</small>
+        </div>
 
-      <div class="modal-buttons">
-        <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
-        <button type="submit" class="save-btn">Save User</button>
-      </div>
-    </form>
+        <div class="form-group">
+          <label>X Handle (Twitter)</label>
+          <input type="text" id="xHandle" placeholder="@username">
+        </div>
+
+        <div class="form-group">
+          <label>X Profile Photo URL</label>
+          <input type="url" id="xAvatar" placeholder="https://...">
+        </div>
+
+        <div class="form-group">
+          <label>Daily Projects (comma-separated)</label>
+          <input type="text" id="projects" placeholder="@project1, @project2, @project3">
+        </div>
+
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="save-btn">Save User</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 
-
-<script type="module">
-  import { auth, db, doc, getDoc, collection, getDocs, setDoc, updateDoc, deleteDoc, createUserWithEmailAndPassword } from './firebase-config.js';
-  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-  // === CRITICAL: Check authentication FIRST ===
-  let currentUserId = null;
-  let isAdmin = false;
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      // Not logged in - redirect immediately
-      alert('Please login first');
-      window.location.href = '/login.html';
-      return;
-    }
-
-    currentUserId = user.uid;
-
-    // Check if user is admin
-    try {
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+  <!-- Posts Management Modal -->
+  <div class="modal" id="postsModal">
+    <div class="modal-content">
+      <h2 id="postsModalTitle">Manage Posts</h2>
+      <p style="color: #666; margin-bottom: 20px;">Add 3 daily posts for: <strong id="selectedProject"></strong></p>
       
-      if (!userDoc.exists()) {
-        alert('User not found in database');
-        window.location.href = '/login.html';
-        return;
-      }
+      <form id="postsForm">
+        <div class="form-group">
+          <label>Select Project</label>
+          <select id="projectSelect" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+            <option value="">Loading projects...</option>
+          </select>
+        </div>
 
-      const userData = userDoc.data();
-      
-      if (userData.role !== 'admin') {
-        alert('Admin access required');
-        window.location.href = '/login.html';
-        return;
-      }
+        <div class="post-input">
+          <label>Post 1</label>
+          <textarea id="post1Text" placeholder="Enter post content..." required></textarea>
+          <input type="url" id="post1Link" placeholder="Post link (optional)" style="margin-top: 5px;">
+        </div>
 
-      isAdmin = true;
-      
-      // Now safe to load users
-      loadUsers();
-      
-    } catch (error) {
-      console.error('Error checking admin:', error);
-      alert('Error verifying admin access');
-      window.location.href = '/login.html';
-    }
-  });
+        <div class="post-input">
+          <label>Post 2</label>
+          <textarea id="post2Text" placeholder="Enter post content..." required></textarea>
+          <input type="url" id="post2Link" placeholder="Post link (optional)" style="margin-top: 5px;">
+        </div>
 
-  // Load all users
-  async function loadUsers() {
-    if (!isAdmin) {
-      alert('Unauthorized access');
-      window.location.href = '/login.html';
-      return;
-    }
+        <div class="post-input">
+          <label>Post 3</label>
+          <textarea id="post3Text" placeholder="Enter post content..." required></textarea>
+          <input type="url" id="post3Link" placeholder="Post link (optional)" style="margin-top: 5px;">
+        </div>
 
-    try {
-      const usersSnapshot = await getDocs(collection(db, 'users'));
-      const tbody = document.getElementById('usersTableBody');
-      tbody.innerHTML = '';
-
-      let userCount = 0;
-
-      usersSnapshot.forEach((doc) => {
-        const user = doc.data();
-        const userId = doc.id;
-
-        if (user.role === 'admin') return; // Don't show admin users
-
-        userCount++;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>
-            <div class="user-info">
-              <img src="${user.xAvatar || 'https://via.placeholder.com/40'}" alt="User" class="user-avatar">
-              <span>${user.name || 'N/A'}</span>
-            </div>
-          </td>
-          <td>${user.email}</td>
-          <td>${user.xHandle || 'Not linked'}</td>
-          <td><span class="status-badge ${user.status === 'active' ? 'status-active' : 'status-inactive'}">${user.status || 'active'}</span></td>
-          <td>${user.projects?.length || 0} projects</td>
-          <td>
-            <button class="action-btn" onclick="window.editUser('${userId}')">Edit</button>
-            <button class="action-btn delete-btn" onclick="window.deleteUser('${userId}')">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      // Update count
-      document.querySelector('.users-section h2').textContent = `All Users (${userCount})`;
-
-    } catch (error) {
-      console.error('Error loading users:', error);
-      alert('Error loading users');
-    }
-  }
-
-  // Modal functions
-  function openAddUserModal() {
-    if (!isAdmin) {
-      alert('Unauthorized');
-      return;
-    }
-    editingUserId = null;
-    document.getElementById('modalTitle').textContent = 'Add New User';
-    document.getElementById('userForm').reset();
-    document.getElementById('userEmail').disabled = false;
-    document.getElementById('userModal').style.display = 'flex';
-  }
-
-  function closeModal() {
-    document.getElementById('userModal').style.display = 'none';
-    editingUserId = null;
-  }
-
-  let editingUserId = null;
-
-  // Form submission
-  document.getElementById('userForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (!isAdmin) {
-      alert('Unauthorized');
-      return;
-    }
-
-    const email = document.getElementById('userEmail').value.trim();
-    const name = document.getElementById('userName').value.trim();
-    const xHandle = document.getElementById('xHandle').value.trim();
-    const xAvatar = document.getElementById('xAvatar').value.trim();
-    const projectsInput = document.getElementById('projects').value.trim();
-    const projects = projectsInput ? projectsInput.split(',').map(p => p.trim()) : [];
-
-    const saveBtn = document.querySelector('.save-btn');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving...';
-
-    try {
-      if (editingUserId) {
-        // Update existing user
-        await updateDoc(doc(db, 'users', editingUserId), {
-          name,
-          xHandle,
-          xAvatar,
-          projects,
-          updatedAt: new Date().toISOString()
-        });
-        alert('User updated successfully!');
-      } else {
-        // Create new user with Firebase Authentication
-        const tempPassword = 'TempPass123!'; // User should change this
-        
-        // Create auth user
-        const userCredential = await createUserWithEmailAndPassword(auth, email, tempPassword);
-        const newUserId = userCredential.user.uid;
-
-        // Create user document in Firestore
-        await setDoc(doc(db, 'users', newUserId), {
-          email,
-          name,
-          xHandle,
-          xAvatar,
-          projects,
-          role: 'user',
-          status: 'active',
-          createdAt: new Date().toISOString()
-        });
-
-        alert(`User added successfully!\n\nTemporary password: ${tempPassword}\n\nAsk user to login and change password.`);
-      }
-
-      closeModal();
-      loadUsers();
-
-    } catch (error) {
-      console.error('Error saving user:', error);
-      
-      let errorMsg = 'Error: ';
-      if (error.code === 'auth/email-already-in-use') {
-        errorMsg += 'This email is already registered.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMsg += 'Password is too weak.';
-      } else {
-        errorMsg += error.message;
-      }
-      
-      alert(errorMsg);
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save User';
-    }
-  });
-
-  // Edit user
-  async function editUser(uid) {
-    if (!isAdmin) {
-      alert('Unauthorized');
-      return;
-    }
-
-    try {
-      const userDoc = await getDoc(doc(db, 'users', uid));
-      if (!userDoc.exists()) {
-        alert('User not found');
-        return;
-      }
-
-      const user = userDoc.data();
-      editingUserId = uid;
-
-      document.getElementById('modalTitle').textContent = 'Edit User';
-      document.getElementById('userEmail').value = user.email;
-      document.getElementById('userEmail').disabled = true; // Can't change email
-      document.getElementById('userName').value = user.name || '';
-      document.getElementById('xHandle').value = user.xHandle || '';
-      document.getElementById('xAvatar').value = user.xAvatar || '';
-      document.getElementById('projects').value = user.projects?.join(', ') || '';
-
-      document.getElementById('userModal').style.display = 'flex';
-    } catch (error) {
-      console.error('Error loading user:', error);
-      alert('Error loading user');
-    }
-  }
-
-  // Delete user
-  async function deleteUser(uid) {
-    if (!isAdmin) {
-      alert('Unauthorized');
-      return;
-    }
-
-    if (!confirm('Are you sure you want to delete this user?\n\nThis will:\n- Delete their account\n- Remove all their data\n- Cannot be undone')) {
-      return;
-    }
-
-    try {
-      // Delete from Firestore
-      await deleteDoc(doc(db, 'users', uid));
-      
-      // Note: Deleting from Firebase Auth requires admin SDK on backend
-      // For now we just delete from Firestore
-      alert('User deleted from database successfully.\n\nNote: Their login will still work until you disable it in Firebase Console → Authentication.');
-      
-      loadUsers();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      alert('Error deleting user: ' + error.message);
-    }
-  }
-
-  function logout() {
-    auth.signOut().then(() => {
-      localStorage.clear();
-      window.location.href = '/login.html';
-    });
-  }
-
-  // Make functions global
-  window.openAddUserModal = openAddUserModal;
-  window.closeModal = closeModal;
-  window.editUser = editUser;
-  window.deleteUser = deleteUser;
-  window.logout = logout;
-  // X Profile Fetcher
-document.getElementById('fetchProfileBtn').addEventListener('click', async () => {
-  const input = document.getElementById('xProfileInput').value.trim();
-  
-  if (!input) {
-    alert('Please enter an X profile URL or handle');
-    return;
-  }
-
-  // Extract username from URL or handle
-  let username = input;
-  if (input.includes('x.com/') || input.includes('twitter.com/')) {
-    const match = input.match(/(?:x\.com|twitter\.com)\/([^\/\?]+)/);
-    username = match ? match[1] : input;
-  }
-  username = username.replace('@', '');
-
-  const fetchBtn = document.getElementById('fetchProfileBtn');
-  fetchBtn.disabled = true;
-  fetchBtn.textContent = '⏳ Fetching...';
-
-  try {
-    // Use a public API to fetch X profile data
-    // Option 1: RapidAPI Twitter API
-    // Option 2: Your own backend endpoint
-    // Option 3: Nitter instance (Twitter frontend)
-    
-    // For now, we'll use a CORS proxy + Nitter
-    const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://nitter.net/${username}`)}`);
-    const html = await response.text();
-
-    // Parse HTML to extract profile data
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-
-    // Extract profile picture
-    const avatarElement = doc.querySelector('.profile-card-avatar');
-    let avatarUrl = '';
-    if (avatarElement) {
-      avatarUrl = avatarElement.src || '';
-      if (avatarUrl.startsWith('/')) {
-        avatarUrl = 'https://nitter.net' + avatarUrl;
-      }
-    }
-
-    // Extract full name
-    const nameElement = doc.querySelector('.profile-card-fullname');
-    const fullName = nameElement ? nameElement.textContent.trim() : username;
-
-    // Auto-fill form
-    document.getElementById('userName').value = fullName;
-    document.getElementById('xHandle').value = '@' + username;
-    document.getElementById('xAvatar').value = avatarUrl;
-
-    // Show avatar preview
-    if (avatarUrl) {
-      document.getElementById('avatarPreviewImg').src = avatarUrl;
-      document.getElementById('avatarPreview').style.display = 'block';
-    }
-
-    alert(`✅ Profile fetched successfully!\n\nName: ${fullName}\nHandle: @${username}`);
-
-  } catch (error) {
-    console.error('Error fetching profile:', error);
-    
-    // Fallback: Manual construction
-    const username = input.replace('@', '').replace(/.*\//, '');
-    document.getElementById('xHandle').value = '@' + username;
-    document.getElementById('userName').value = username;
-    
-    alert('⚠️ Could not fetch profile automatically.\n\nHandle has been filled. Please add avatar URL manually.');
-  } finally {
-    fetchBtn.disabled = false;
-    fetchBtn.textContent = '🔍 Fetch Profile';
-  }
-});
-
-// Preview avatar when URL is entered manually
-document.getElementById('xAvatar').addEventListener('input', (e) => {
-  const url = e.target.value.trim();
-  if (url) {
-    document.getElementById('avatarPreviewImg').src = url;
-    document.getElementById('avatarPreview').style.display = 'block';
-  } else {
-    document.getElementById('avatarPreview').style.display = 'none';
-  }
-});
-
-</script>
-
-
-
-</body>
-</html>
-
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="closePostsModal()">Cancel</button>
+          <button type="submit" class="save-btn">Save Posts</button>
+        </div>
+      </form>
+    </div>
+  </div>
