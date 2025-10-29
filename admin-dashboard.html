@@ -5,282 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - NexaAI</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f7fa;
-    }
-
-    .navbar {
-      background: white;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .logo {
-      font-size: 24px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .admin-badge {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .logout-btn {
-      padding: 8px 20px;
-      background: #f5f7fa;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #666;
-    }
-
-    .logout-btn:hover {
-      background: #e0e4ea;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-
-    .header-section {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-section h1 {
-      font-size: 32px;
-    }
-
-    .add-user-btn {
-      padding: 12px 30px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .add-user-btn:hover {
-      transform: translateY(-2px);
-    }
-
-    .users-section {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-
-    .users-section h2 {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    thead {
-      background: #f8f9fa;
-    }
-
-    th {
-      padding: 15px;
-      text-align: left;
-      font-weight: 600;
-      color: #666;
-      font-size: 14px;
-    }
-
-    td {
-      padding: 15px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .status-badge {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .status-active {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    .status-inactive {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    .action-btn {
-      padding: 6px 15px;
-      background: #667eea;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-right: 5px;
-    }
-
-    .action-btn:hover {
-      background: #5568d3;
-    }
-
-    .delete-btn {
-      background: #dc3545;
-    }
-
-    .delete-btn:hover {
-      background: #c82333;
-    }
-
-    .password-code {
-      background: #f0f0f0;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-family: 'Courier New', monospace;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .password-code:hover {
-      background: #e0e0e0;
-    }
-
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: white;
-      padding: 40px;
-      border-radius: 15px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .modal-content h2 {
-      margin-bottom: 20px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .form-group input, .form-group textarea {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .form-group input:focus, .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 30px;
-    }
-
-    .save-btn {
-      flex: 1;
-      padding: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .cancel-btn {
-      flex: 1;
-      padding: 12px;
-      background: #e0e0e0;
-      color: #333;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .post-input {
-      margin-bottom: 15px;
-    }
-
-    .post-input textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f7fa; }
+    .navbar { background: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+    .logo { font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .admin-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .logout-btn { padding: 8px 20px; background: #f5f7fa; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: #666; }
+    .logout-btn:hover { background: #e0e4ea; }
+    .container { max-width: 1400px; margin: 40px auto; padding: 0 20px; }
+    .header-section { background: white; padding: 30px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); display: flex; justify-content: space-between; align-items: center; }
+    .header-section h1 { font-size: 32px; }
+    .add-user-btn { padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+    .add-user-btn:hover { transform: translateY(-2px); }
+    .users-section { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+    .users-section h2 { font-size: 24px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #f8f9fa; }
+    th { padding: 15px; text-align: left; font-weight: 600; color: #666; font-size: 14px; }
+    td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .status-active { background: #d4edda; color: #155724; }
+    .status-inactive { background: #f8d7da; color: #721c24; }
+    .action-btn { padding: 6px 15px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 5px; }
+    .action-btn:hover { background: #5568d3; }
+    .delete-btn { background: #dc3545; }
+    .delete-btn:hover { background: #c82333; }
+    .password-code { background: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-family: 'Courier New', monospace; cursor: pointer; transition: background 0.2s; }
+    .password-code:hover { background: #e0e0e0; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 40px; border-radius: 15px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .modal-content h2 { margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 30px; }
+    .save-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .cancel-btn { flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .post-input { margin-bottom: 15px; }
+    .post-input textarea { min-height: 80px; resize: vertical; }
   </style>
 </head>
 <body>
@@ -294,7 +59,6 @@
   </div>
 
   <div class="container">
-    
     <div class="header-section">
       <div>
         <h1>User Management</h1>
@@ -305,8 +69,7 @@
 
     <div class="users-section">
       <h2>All Users</h2>
-      
-      <table id="usersTable">
+      <table>
         <thead>
           <tr>
             <th>User</th>
@@ -319,52 +82,42 @@
           </tr>
         </thead>
         <tbody id="usersTableBody">
-          <tr>
-            <td colspan="7" style="text-align: center; padding: 40px; color: #666;">Loading users...</td>
-          </tr>
+          <tr><td colspan="7" style="text-align: center; padding: 40px; color: #666;">Loading users...</td></tr>
         </tbody>
       </table>
     </div>
-
   </div>
 
   <!-- User Modal -->
   <div class="modal" id="userModal">
     <div class="modal-content">
       <h2 id="modalTitle">Add New User</h2>
-      
       <form id="userForm">
         <div class="form-group">
           <label>Email</label>
           <input type="email" id="userEmail" placeholder="user@example.com" required>
         </div>
-
         <div class="form-group">
           <label>Name</label>
           <input type="text" id="userName" placeholder="John Doe">
         </div>
-
         <div class="form-group">
           <label>Password</label>
           <input type="text" id="userPassword" placeholder="Auto-generated">
           <small style="color: #666;">Leave empty for auto-generated password</small>
         </div>
-
         <div class="form-group">
           <label>X Handle (Twitter)</label>
           <input type="text" id="xHandle" placeholder="@username">
         </div>
-
         <div class="form-group">
           <label>X Profile Photo URL</label>
           <input type="url" id="xAvatar" placeholder="https://...">
         </div>
-
         <div class="form-group">
           <label>Daily Projects (comma-separated)</label>
-          <input type="text" id="projects" placeholder="@project1, @project2, @project3">
+          <input type="text" id="projects" placeholder="@project1, @project2">
         </div>
-
         <div class="modal-buttons">
           <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
           <button type="submit" class="save-btn">Save User</button>
@@ -373,38 +126,33 @@
     </div>
   </div>
 
-  <!-- Posts Management Modal -->
+  <!-- Posts Modal -->
   <div class="modal" id="postsModal">
     <div class="modal-content">
       <h2 id="postsModalTitle">Manage Posts</h2>
-      <p style="color: #666; margin-bottom: 20px;">Add 3 daily posts for: <strong id="selectedProject"></strong></p>
-      
+      <p style="color: #666; margin-bottom: 20px;">Add 3 daily posts</p>
       <form id="postsForm">
         <div class="form-group">
           <label>Select Project</label>
-          <select id="projectSelect" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
-            <option value="">Loading projects...</option>
+          <select id="projectSelect">
+            <option value="">Loading...</option>
           </select>
         </div>
-
         <div class="post-input">
           <label>Post 1</label>
-          <textarea id="post1Text" placeholder="Enter post content..." required></textarea>
-          <input type="url" id="post1Link" placeholder="Post link (optional)" style="margin-top: 5px;">
+          <textarea id="post1Text" placeholder="Post content..." required></textarea>
+          <input type="url" id="post1Link" placeholder="Link (optional)" style="margin-top: 5px;">
         </div>
-
         <div class="post-input">
           <label>Post 2</label>
-          <textarea id="post2Text" placeholder="Enter post content..." required></textarea>
-          <input type="url" id="post2Link" placeholder="Post link (optional)" style="margin-top: 5px;">
+          <textarea id="post2Text" placeholder="Post content..." required></textarea>
+          <input type="url" id="post2Link" placeholder="Link (optional)" style="margin-top: 5px;">
         </div>
-
         <div class="post-input">
           <label>Post 3</label>
-          <textarea id="post3Text" placeholder="Enter post content..." required></textarea>
-          <input type="url" id="post3Link" placeholder="Post link (optional)" style="margin-top: 5px;">
+          <textarea id="post3Text" placeholder="Post content..." required></textarea>
+          <input type="url" id="post3Link" placeholder="Link (optional)" style="margin-top: 5px;">
         </div>
-
         <div class="modal-buttons">
           <button type="button" class="cancel-btn" onclick="closePostsModal()">Cancel</button>
           <button type="submit" class="save-btn">Save Posts</button>
@@ -412,3 +160,254 @@
       </form>
     </div>
   </div>
+
+  <script type="module">
+    import { auth, db, doc, getDoc, setDoc, collection, getDocs, updateDoc, deleteDoc } from './firebase-config.js';
+    import { createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    let currentUserId = null;
+    let isAdmin = false;
+    let editingUserId = null;
+    let selectedUserId = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        alert('Please login first');
+        window.location.href = '/login.html';
+        return;
+      }
+
+      currentUserId = user.uid;
+
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+          alert('Admin access required');
+          window.location.href = '/login.html';
+          return;
+        }
+        isAdmin = true;
+        loadUsers();
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error verifying admin access');
+        window.location.href = '/login.html';
+      }
+    });
+
+    async function loadUsers() {
+      if (!isAdmin) return;
+      try {
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
+        let userCount = 0;
+
+        usersSnapshot.forEach((userDoc) => {
+          const user = userDoc.data();
+          const userId = userDoc.id;
+          if (user.role === 'admin') return;
+          userCount++;
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><div class="user-info"><img src="${user.xAvatar || 'https://via.placeholder.com/40'}" class="user-avatar"><span>${user.name || 'N/A'}</span></div></td>
+            <td>${user.email}</td>
+            <td><code class="password-code" onclick="window.copyPassword('${user.password || 'N/A'}')">${user.password || 'N/A'}</code></td>
+            <td>${user.xHandle || 'Not linked'}</td>
+            <td><span class="status-badge status-active">${user.status || 'active'}</span></td>
+            <td>${user.projects?.length || 0} projects</td>
+            <td>
+              <button class="action-btn" onclick="window.managePosts('${userId}', '${user.name}', ${JSON.stringify(user.projects || []).replace(/"/g, '&quot;')})">Manage Posts</button>
+              <button class="action-btn" onclick="window.editUser('${userId}')">Edit</button>
+              <button class="action-btn delete-btn" onclick="window.deleteUser('${userId}')">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+        document.querySelector('.users-section h2').textContent = `All Users (${userCount})`;
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading users');
+      }
+    }
+
+    function copyPassword(password) {
+      navigator.clipboard.writeText(password);
+      alert('✓ Password copied: ' + password);
+    }
+
+    function generatePassword() {
+      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$";
+      let password = "";
+      for (let i = 0; i < 12; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+      }
+      return password;
+    }
+
+    function openAddUserModal() {
+      if (!isAdmin) return;
+      editingUserId = null;
+      document.getElementById('modalTitle').textContent = 'Add New User';
+      document.getElementById('userForm').reset();
+      document.getElementById('userEmail').disabled = false;
+      document.getElementById('userModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('userModal').style.display = 'none';
+      editingUserId = null;
+    }
+
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!isAdmin) return;
+
+      const email = document.getElementById('userEmail').value.trim();
+      const name = document.getElementById('userName').value.trim();
+      const password = document.getElementById('userPassword').value.trim() || generatePassword();
+      const xHandle = document.getElementById('xHandle').value.trim();
+      const xAvatar = document.getElementById('xAvatar').value.trim();
+      const projectsInput = document.getElementById('projects').value.trim();
+      const projects = projectsInput ? projectsInput.split(',').map(p => p.trim()) : [];
+
+      const saveBtn = document.querySelector('#userForm .save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        if (editingUserId) {
+          await updateDoc(doc(db, 'users', editingUserId), {
+            name, password, xHandle, xAvatar, projects,
+            updatedAt: new Date().toISOString()
+          });
+          alert('✓ User updated!');
+        } else {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const newUserId = userCredential.user.uid;
+          await setDoc(doc(db, 'users', newUserId), {
+            email, name: name || 'New User', password, xHandle, xAvatar, projects,
+            role: 'user', status: 'active', createdAt: new Date().toISOString()
+          });
+          alert(`✓ User created!\n\nEmail: ${email}\nPassword: ${password}`);
+        }
+        closeModal();
+        loadUsers();
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save User';
+      }
+    });
+
+    async function editUser(uid) {
+      if (!isAdmin) return;
+      try {
+        const userDoc = await getDoc(doc(db, 'users', uid));
+        if (!userDoc.exists()) { alert('User not found'); return; }
+        const user = userDoc.data();
+        editingUserId = uid;
+        document.getElementById('modalTitle').textContent = 'Edit User';
+        document.getElementById('userEmail').value = user.email;
+        document.getElementById('userEmail').disabled = true;
+        document.getElementById('userName').value = user.name || '';
+        document.getElementById('userPassword').value = user.password || '';
+        document.getElementById('xHandle').value = user.xHandle || '';
+        document.getElementById('xAvatar').value = user.xAvatar || '';
+        document.getElementById('projects').value = user.projects?.join(', ') || '';
+        document.getElementById('userModal').style.display = 'flex';
+      } catch (error) {
+        alert('Error loading user');
+      }
+    }
+
+    async function deleteUser(uid) {
+      if (!isAdmin) return;
+      if (!confirm('Delete this user?')) return;
+      try {
+        await deleteDoc(doc(db, 'users', uid));
+        alert('✓ User deleted');
+        loadUsers();
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    function managePosts(userId, userName, projects) {
+      if (!isAdmin) return;
+      selectedUserId = userId;
+      document.getElementById('postsModalTitle').textContent = `Manage Posts for ${userName}`;
+      const projectSelect = document.getElementById('projectSelect');
+      projectSelect.innerHTML = '';
+      if (!projects || projects.length === 0) {
+        projectSelect.innerHTML = '<option value="">No projects assigned</option>';
+      } else {
+        projects.forEach(project => {
+          const option = document.createElement('option');
+          option.value = project;
+          option.textContent = project;
+          projectSelect.appendChild(option);
+        });
+      }
+      document.getElementById('postsModal').style.display = 'flex';
+    }
+
+    function closePostsModal() {
+      document.getElementById('postsModal').style.display = 'none';
+      document.getElementById('postsForm').reset();
+    }
+
+    document.getElementById('postsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!isAdmin) return;
+      const project = document.getElementById('projectSelect').value;
+      if (!project) { alert('Please select a project'); return; }
+      const posts = [
+        { text: document.getElementById('post1Text').value.trim(), link: document.getElementById('post1Link').value.trim() },
+        { text: document.getElementById('post2Text').value.trim(), link: document.getElementById('post2Link').value.trim() },
+        { text: document.getElementById('post3Text').value.trim(), link: document.getElementById('post3Link').value.trim() }
+      ];
+      if (!posts[0].text || !posts[1].text || !posts[2].text) {
+        alert('Please fill all 3 posts');
+        return;
+      }
+      const saveBtn = document.querySelector('#postsForm .save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const postId = `${today}_${selectedUserId}_${project.replace('@', '')}`;
+        await setDoc(doc(db, 'posts', postId), {
+          userId: selectedUserId, project, date: today, posts,
+          createdAt: new Date().toISOString()
+        });
+        alert('✓ Posts saved!');
+        closePostsModal();
+      } catch (error) {
+        alert('Error: ' + error.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Posts';
+      }
+    });
+
+    function logout() {
+      localStorage.clear();
+      auth.signOut();
+      window.location.href = '/login.html';
+    }
+
+    window.openAddUserModal = openAddUserModal;
+    window.closeModal = closeModal;
+    window.editUser = editUser;
+    window.deleteUser = deleteUser;
+    window.managePosts = managePosts;
+    window.closePostsModal = closePostsModal;
+    window.copyPassword = copyPassword;
+    window.logout = logout;
+  </script>
+</body>
+</html>
