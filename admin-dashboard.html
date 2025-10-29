@@ -323,44 +323,69 @@
 
   </div>
 
-  <!-- Add/Edit User Modal -->
-  <div class="modal" id="userModal">
-    <div class="modal-content">
-      <h2 id="modalTitle">Add New User</h2>
-      
-      <form id="userForm">
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="userEmail" placeholder="user@example.com" required>
+<!-- Add/Edit User Modal -->
+<div class="modal" id="userModal">
+  <div class="modal-content">
+    <h2 id="modalTitle">Add New User</h2>
+    
+    <form id="userForm">
+      <!-- X Profile Fetch -->
+      <div class="form-group">
+        <label>X Profile URL or Handle</label>
+        <div style="display: flex; gap: 10px;">
+          <input 
+            type="text" 
+            id="xProfileInput" 
+            placeholder="https://x.com/elonmusk or @elonmusk"
+          >
+          <button 
+            type="button" 
+            class="fetch-btn" 
+            id="fetchProfileBtn"
+            style="padding: 12px 20px; background: #1DA1F2; color: white; border: none; border-radius: 8px; cursor: pointer; white-space: nowrap;"
+          >
+            🔍 Fetch Profile
+          </button>
         </div>
+        <small style="color: #666; display: block; margin-top: 5px;">Enter X profile link and click Fetch to auto-fill details</small>
+      </div>
 
-        <div class="form-group">
-          <label>Name</label>
-          <input type="text" id="userName" placeholder="John Doe">
-        </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="userEmail" placeholder="user@example.com" required>
+      </div>
 
-        <div class="form-group">
-          <label>X Handle (Twitter)</label>
-          <input type="text" id="xHandle" placeholder="@username">
-        </div>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="userName" placeholder="John Doe">
+      </div>
 
-        <div class="form-group">
-          <label>X Profile Photo URL</label>
-          <input type="url" id="xAvatar" placeholder="https://...">
-        </div>
+      <div class="form-group">
+        <label>X Handle (Twitter)</label>
+        <input type="text" id="xHandle" placeholder="@username">
+      </div>
 
-        <div class="form-group">
-          <label>Daily Projects (comma-separated)</label>
-          <input type="text" id="projects" placeholder="@project1, @project2, @project3">
+      <div class="form-group">
+        <label>X Profile Photo URL</label>
+        <input type="url" id="xAvatar" placeholder="https://...">
+        <div id="avatarPreview" style="margin-top: 10px; display: none;">
+          <img id="avatarPreviewImg" src="" alt="Preview" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
         </div>
+      </div>
 
-        <div class="modal-buttons">
-          <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
-          <button type="submit" class="save-btn">Save User</button>
-        </div>
-      </form>
-    </div>
+      <div class="form-group">
+        <label>Daily Projects (comma-separated)</label>
+        <input type="text" id="projects" placeholder="@project1, @project2, @project3">
+      </div>
+
+      <div class="modal-buttons">
+        <button type="button" class="cancel-btn" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="save-btn">Save User</button>
+      </div>
+    </form>
   </div>
+</div>
+
 
 <script type="module">
   import { auth, db, doc, getDoc, collection, getDocs, setDoc, updateDoc, deleteDoc, createUserWithEmailAndPassword } from './firebase-config.js';
@@ -629,9 +654,98 @@
   window.editUser = editUser;
   window.deleteUser = deleteUser;
   window.logout = logout;
+  // X Profile Fetcher
+document.getElementById('fetchProfileBtn').addEventListener('click', async () => {
+  const input = document.getElementById('xProfileInput').value.trim();
+  
+  if (!input) {
+    alert('Please enter an X profile URL or handle');
+    return;
+  }
+
+  // Extract username from URL or handle
+  let username = input;
+  if (input.includes('x.com/') || input.includes('twitter.com/')) {
+    const match = input.match(/(?:x\.com|twitter\.com)\/([^\/\?]+)/);
+    username = match ? match[1] : input;
+  }
+  username = username.replace('@', '');
+
+  const fetchBtn = document.getElementById('fetchProfileBtn');
+  fetchBtn.disabled = true;
+  fetchBtn.textContent = '⏳ Fetching...';
+
+  try {
+    // Use a public API to fetch X profile data
+    // Option 1: RapidAPI Twitter API
+    // Option 2: Your own backend endpoint
+    // Option 3: Nitter instance (Twitter frontend)
+    
+    // For now, we'll use a CORS proxy + Nitter
+    const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(`https://nitter.net/${username}`)}`);
+    const html = await response.text();
+
+    // Parse HTML to extract profile data
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // Extract profile picture
+    const avatarElement = doc.querySelector('.profile-card-avatar');
+    let avatarUrl = '';
+    if (avatarElement) {
+      avatarUrl = avatarElement.src || '';
+      if (avatarUrl.startsWith('/')) {
+        avatarUrl = 'https://nitter.net' + avatarUrl;
+      }
+    }
+
+    // Extract full name
+    const nameElement = doc.querySelector('.profile-card-fullname');
+    const fullName = nameElement ? nameElement.textContent.trim() : username;
+
+    // Auto-fill form
+    document.getElementById('userName').value = fullName;
+    document.getElementById('xHandle').value = '@' + username;
+    document.getElementById('xAvatar').value = avatarUrl;
+
+    // Show avatar preview
+    if (avatarUrl) {
+      document.getElementById('avatarPreviewImg').src = avatarUrl;
+      document.getElementById('avatarPreview').style.display = 'block';
+    }
+
+    alert(`✅ Profile fetched successfully!\n\nName: ${fullName}\nHandle: @${username}`);
+
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    
+    // Fallback: Manual construction
+    const username = input.replace('@', '').replace(/.*\//, '');
+    document.getElementById('xHandle').value = '@' + username;
+    document.getElementById('userName').value = username;
+    
+    alert('⚠️ Could not fetch profile automatically.\n\nHandle has been filled. Please add avatar URL manually.');
+  } finally {
+    fetchBtn.disabled = false;
+    fetchBtn.textContent = '🔍 Fetch Profile';
+  }
+});
+
+// Preview avatar when URL is entered manually
+document.getElementById('xAvatar').addEventListener('input', (e) => {
+  const url = e.target.value.trim();
+  if (url) {
+    document.getElementById('avatarPreviewImg').src = url;
+    document.getElementById('avatarPreview').style.display = 'block';
+  } else {
+    document.getElementById('avatarPreview').style.display = 'none';
+  }
+});
+
 </script>
 
 
 
 </body>
 </html>
+
