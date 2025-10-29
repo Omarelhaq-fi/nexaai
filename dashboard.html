@@ -16,7 +16,6 @@
       background: #f5f7fa;
     }
 
-    /* Navbar */
     .navbar {
       background: white;
       padding: 20px 40px;
@@ -61,7 +60,6 @@
       background: #e0e4ea;
     }
 
-    /* Dashboard Content */
     .container {
       max-width: 1200px;
       margin: 40px auto;
@@ -86,7 +84,6 @@
       font-size: 16px;
     }
 
-    /* Status Cards */
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -149,7 +146,6 @@
       color: #155724;
     }
 
-    /* Projects Section */
     .projects-section {
       background: white;
       padding: 30px;
@@ -183,12 +179,125 @@
     }
 
     .project-tag {
-      padding: 6px 12px;
+      padding: 8px 16px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      border-radius: 20px;
+      border: none;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .project-tag:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Posts Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      max-width: 700px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .post-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      border-left: 4px solid #667eea;
+    }
+
+    .post-text {
+      color: #333;
+      margin-bottom: 15px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .copy-btn {
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #5568d3;
+    }
+
+    .copy-btn.copied {
+      background: #28a745;
+    }
+
+    .close-modal-btn {
+      width: 100%;
+      padding: 12px;
+      background: #e0e0e0;
+      border: none;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .no-posts {
+      text-align: center;
+      padding: 40px;
+      color: #666;
     }
 
     @media (max-width: 768px) {
@@ -206,7 +315,6 @@
 </head>
 <body>
 
-  <!-- Navbar -->
   <div class="navbar">
     <div class="logo">🔷 NexaAI</div>
     <div class="user-info">
@@ -216,19 +324,15 @@
     </div>
   </div>
 
-  <!-- Dashboard Content -->
   <div class="container">
     
-    <!-- Welcome Section -->
     <div class="welcome-section">
       <h1>Welcome back! 👋</h1>
       <p>Here's your Yapper Toolkit overview</p>
     </div>
 
-    <!-- Status Cards -->
     <div class="cards-grid">
       
-      <!-- Extension Status -->
       <div class="card">
         <div class="card-icon">🔌</div>
         <h3>Extension Status</h3>
@@ -236,7 +340,6 @@
         <span class="status-badge">✓ Verified</span>
       </div>
 
-      <!-- X Account -->
       <div class="card">
         <div class="card-icon">🐦</div>
         <h3>X Account Linked</h3>
@@ -244,7 +347,6 @@
         <p class="card-subtitle">Last active: Today</p>
       </div>
 
-      <!-- Daily Projects -->
       <div class="card">
         <div class="card-icon">📊</div>
         <h3>Projects Today</h3>
@@ -254,7 +356,6 @@
 
     </div>
 
-    <!-- Today's Projects -->
     <div class="projects-section">
       <h2>📌 Today's Projects</h2>
       <div id="projectsList">
@@ -264,49 +365,55 @@
 
   </div>
 
+  <!-- Posts Modal -->
+  <div class="modal" id="postsModal">
+    <div class="modal-content">
+      <h2 id="modalProjectName">Loading...</h2>
+      <div id="postsContent">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Fetching today's posts...</p>
+        </div>
+      </div>
+      <button class="close-modal-btn" onclick="closePostsModal()">Close</button>
+    </div>
+  </div>
+
   <script type="module">
-    import { auth, db, doc, getDoc } from './firebase-config.js';
+    import { auth, db, doc, getDoc, collection, query, where, getDocs } from './firebase-config.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // Check authentication with Firebase
+    let currentUserId = null;
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // Not logged in
         window.location.href = '/login.html';
         return;
       }
-
-      // User is logged in, load their data
+      currentUserId = user.uid;
       loadUserData(user.uid);
     });
 
-    // Load user data from Firestore
     async function loadUserData(uid) {
       try {
         const userDoc = await getDoc(doc(db, 'users', uid));
         
         if (!userDoc.exists()) {
-          console.error('User document not found');
-          alert('Error: User data not found in database.\n\nPlease contact admin.');
+          alert('Error: User data not found.');
           logout();
           return;
         }
 
         const data = userDoc.data();
-        
-        console.log('User data loaded:', data);
 
-        // Update UI
         document.getElementById('userName').textContent = data.name || data.email || 'User';
         document.getElementById('xHandle').textContent = data.xHandle || 'Not linked';
         document.getElementById('projectCount').textContent = data.projects?.length || 0;
         
-        // Update avatar
         if (data.xAvatar) {
           document.getElementById('userAvatar').src = data.xAvatar;
         }
 
-        // Load projects
         if (data.projects && data.projects.length > 0) {
           loadProjects(data.projects);
         } else {
@@ -331,10 +438,93 @@
             <h4>${project}</h4>
             <p>Engage with this project's content today</p>
           </div>
-          <span class="project-tag">Assigned</span>
+          <button class="project-tag" onclick="window.getTodayPosts('${project}')">
+            Get Today Posts
+          </button>
         `;
         projectsList.appendChild(item);
       });
+    }
+
+    async function getTodayPosts(project) {
+      // Open modal
+      document.getElementById('postsModal').style.display = 'flex';
+      document.getElementById('modalProjectName').textContent = `Posts for ${project}`;
+      document.getElementById('postsContent').innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>Fetching today's posts...</p>
+        </div>
+      `;
+
+      // Get today's date
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+      const postId = `${today}_${currentUserId}_${project.replace('@', '')}`;
+
+      try {
+        // Fetch posts from Firestore
+        const postDoc = await getDoc(doc(db, 'posts', postId));
+
+        // Simulate loading delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        if (postDoc.exists()) {
+          const data = postDoc.data();
+          displayPosts(data.posts);
+        } else {
+          // No posts found
+          document.getElementById('postsContent').innerHTML = `
+            <div class="no-posts">
+              <h3>📭 No Posts Yet</h3>
+              <p>Please check back later. Admin hasn't added today's posts yet.</p>
+            </div>
+          `;
+        }
+
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        document.getElementById('postsContent').innerHTML = `
+          <div class="no-posts">
+            <h3>⚠️ Error</h3>
+            <p>Could not load posts. Please try again later.</p>
+          </div>
+        `;
+      }
+    }
+
+    function displayPosts(posts) {
+      const content = document.getElementById('postsContent');
+      content.innerHTML = '';
+
+      posts.forEach((post, index) => {
+        const postCard = document.createElement('div');
+        postCard.className = 'post-card';
+        postCard.innerHTML = `
+          <div class="post-text">${post.text}</div>
+          <div class="post-actions">
+            <button class="copy-btn" onclick="window.copyPost('${post.text.replace(/'/g, "\\'")}', this)">
+              📋 Copy Text
+            </button>
+            ${post.link ? `<a href="${post.link}" target="_blank" style="padding: 8px 16px; background: #1DA1F2; color: white; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: 600;">🔗 View Post</a>` : ''}
+          </div>
+        `;
+        content.appendChild(postCard);
+      });
+    }
+
+    function copyPost(text, button) {
+      navigator.clipboard.writeText(text).then(() => {
+        button.textContent = '✓ Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+          button.textContent = '📋 Copy Text';
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    function closePostsModal() {
+      document.getElementById('postsModal').style.display = 'none';
     }
 
     function logout() {
@@ -343,8 +533,11 @@
       window.location.href = '/login.html';
     }
 
-    // Make logout function global
+    // Make functions global
     window.logout = logout;
+    window.getTodayPosts = getTodayPosts;
+    window.copyPost = copyPost;
+    window.closePostsModal = closePostsModal;
   </script>
 </body>
 </html>
