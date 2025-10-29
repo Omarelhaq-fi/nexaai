@@ -1,79 +1,300 @@
-<script type="module">
-  import { auth, db, doc, getDoc } from './firebase-config.js';
-
-  // Check authentication
-  const userId = localStorage.getItem('userId');
-  const userEmail = localStorage.getItem('userEmail');
-
-  if (!userId || !userEmail) {
-    window.location.href = '/login.html';
-  }
-
-  // Load user data from Firestore
-  async function loadUserData() {
-    try {
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      
-      if (!userDoc.exists()) {
-        alert('User data not found');
-        logout();
-        return;
-      }
-
-      const data = userDoc.data();
-
-      // Update UI
-      document.getElementById('userName').textContent = data.name || data.email;
-      document.getElementById('xHandle').textContent = data.xHandle || 'Not linked';
-      document.getElementById('projectCount').textContent = data.projects?.length || 0;
-      
-      // Update avatar
-      if (data.xAvatar) {
-        document.getElementById('userAvatar').src = data.xAvatar;
-      }
-
-      // Load projects
-      if (data.projects && data.projects.length > 0) {
-        loadProjects(data.projects);
-      }
-
-    } catch (error) {
-      console.error('Error loading data:', error);
-      alert('Error loading user data');
-    }
-  }
-
-  function loadProjects(projects) {
-    const projectsList = document.getElementById('projectsList');
-    projectsList.innerHTML = '';
-
-    if (!projects || projects.length === 0) {
-      projectsList.innerHTML = '<p style="color: #666; padding: 20px; text-align: center;">No projects assigned yet</p>';
-      return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Yapper Toolkit</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    projects.forEach(project => {
-      const item = document.createElement('div');
-      item.className = 'project-item';
-      item.innerHTML = `
-        <div class="project-info">
-          <h4>@${project}</h4>
-          <p>Engage with this project's content today</p>
-        </div>
-        <span class="project-tag">Assigned</span>
-      `;
-      projectsList.appendChild(item);
-    });
-  }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f7fa;
+    }
 
-  function logout() {
-    localStorage.clear();
-    window.location.href = '/login.html';
-  }
+    /* Navbar */
+    .navbar {
+      background: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
 
-  // Make logout function global
-  window.logout = logout;
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-  // Load data on page load
-  loadUserData();
-</script>
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .logout-btn {
+      padding: 8px 20px;
+      background: #f5f7fa;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .logout-btn:hover {
+      background: #e0e4ea;
+    }
+
+    /* Dashboard Content */
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .welcome-section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .welcome-section h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .welcome-section p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    /* Status Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card-icon {
+      font-size: 36px;
+      margin-bottom: 15px;
+    }
+
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-subtitle {
+      color: #999;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 10px;
+      background: #d4edda;
+      color: #155724;
+    }
+
+    /* Projects Section */
+    .projects-section {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .projects-section h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .project-item {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .project-info h4 {
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .project-info p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .project-tag {
+      padding: 6px 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 15px 20px;
+      }
+      .container {
+        padding: 0 15px;
+      }
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="logo">🔷 NexaAI</div>
+    <div class="user-info">
+      <img src="https://via.placeholder.com/40" alt="User" class="user-avatar" id="userAvatar">
+      <span id="userName">Loading...</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="container">
+    
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h1>Welcome back! 👋</h1>
+      <p>Here's your Yapper Toolkit overview</p>
+    </div>
+
+    <!-- Status Cards -->
+    <div class="cards-grid">
+      
+      <!-- Extension Status -->
+      <div class="card">
+        <div class="card-icon">🔌</div>
+        <h3>Extension Status</h3>
+        <div class="card-value">Active</div>
+        <span class="status-badge">✓ Verified</span>
+      </div>
+
+      <!-- X Account -->
+      <div class="card">
+        <div class="card-icon">🐦</div>
+        <h3>X Account Linked</h3>
+        <div class="card-value" id="xHandle">Loading...</div>
+        <p class="card-subtitle">Last active: Today</p>
+      </div>
+
+      <!-- Daily Projects -->
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Projects Today</h3>
+        <div class="card-value" id="projectCount">0</div>
+        <p class="card-subtitle">Projects assigned</p>
+      </div>
+
+    </div>
+
+    <!-- Today's Projects -->
+    <div class="projects-section">
+      <h2>📌 Today's Projects</h2>
+      <div id="projectsList">
+        <p style="color: #666; padding: 20px; text-align: center;">Loading projects...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Firebase SDK - Compat version -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC3fK5zT6wnYS0dCLHVquxHN43J1LnRL1Q",
+      authDomain: "nexaai-13216.firebaseapp.com",
+      projectId: "nexaai-13216",
+      storageBucket: "nexaai-13216.firebasestorage.app",
+      messagingSenderId: "884913897531",
+      appId: "1:884913897531:web:dbef32b3e7be83de695c1e"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Check authentication
+    const userId = localStorage.getItem('userId');
+    
+    if (!userId) {
+      window.location.href = '/login.html';
+    }
+
+    // Load user data from Firestore
+    async function loadUserData() {
+      try {
+        const userDoc = await db.collection('users').doc(userId).get();
+        
+        if
